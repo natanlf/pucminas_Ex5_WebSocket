@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.io</title>
+
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+    </style>
+</head>
+<body>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+
+
+    <ul id="messages"></ul>
+
+    <form id="comment-form" style="margin: 20px 20px 0px;">
+       <label for="author">Author: </label><br>
+       <input id="author" type="text" name="author"><br><br>
+       <label for="comment">Comment: </label><br>
+       <input id="comment" type="text" name="comment"><br>
+       <button style="margin-left: 20px;" type="submit">Send</button> 
+    </form>
+
+    <script>
+        const socket = io();
+
+        const messageForm = document.getElementById('comment-form');
+        const messageList = document.getElementById('messages');
+        messageForm.onsubmit = function(event) {
+            //previne o recarregamento da página a submeter o formulário
+            event.preventDefault();
+            const author = document.getElementById('author').value;
+            const comment = document.getElementById('comment').value;
+            const data = { author, comment }    
+            renderElement(data);    
+            //envia a mensagem para o servidor    
+            socket.emit('sendMessage', data)
+        }
+        
+        socket.on('renderMessage', (conteudo) => {
+            renderElement(conteudo);
+        });
+            
+        const renderElement = function(message) {
+            const element = document.createElement('li');
+            element.innerHTML = `<strong>${message.author}</strong>: ${message.comment}`;
+            messageList.append(element);
+        }
+ 
+    </script>
+</body>
+</html>
